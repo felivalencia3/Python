@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>File Upload Here</title>
+</head>
+<body>
+{% block content %}
+  <form method="post" action="/upload/" enctype="multipart/form-data">
+    {% csrf_token %}
+      <h1>Enter your key to get this image back</h1>
+      <h3>Remember this key, you're gonna need it later</h3>
+      <input type="text" name="key" placeholder="Key Here">
+      <br><br>
+    <input type="file" name="image">
+    <button type="submit">Upload</button>
+  </form>
+
+
+{% endblock %}
+</body>
+</html>

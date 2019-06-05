@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Welcome to your ToDo List App</title>
+</head>
+<body>
+{% if latestTodos %}
+    <ul>
+    {% for Todo in latestTodos %}
+        <li><a href={% url "TodoApp:about" Todo.id %} >{{ Todo.text }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No Todos available</p>
+{% endif %}
+<button onclick="location.href = 'todo/add'">Add a new To-Do</button>
+</body>
+</html>

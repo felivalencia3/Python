@@ -1,0 +1,171 @@
+<html>
+<head>
+<title>CS_Program.py</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style type="text/css">
+.s0 { color: #c679dd;}
+.s1 { color: #abb2bf;}
+.s2 { color: #6a8759;}
+.s3 { color: #d2945d;}
+.s4 { color: #57b6c2;}
+.ln { color: #5c6370; font-weight: normal; font-style: normal; }
+</style>
+</head>
+<body bgcolor="#282c34">
+<table CELLSPACING=0 CELLPADDING=5 COLS=1 WIDTH="100%" BGCOLOR="#606060" >
+<tr><td><center>
+<font face="Arial, Helvetica" color="#000000">
+CS_Program.py</font>
+</center></td></tr></table>
+<pre><a name="l1"><span class="ln">1    </span></a><span class="s0">import </span><span class="s1">mysql.connector</span>
+<span class="s0">import </span><span class="s1">sys</span>
+<span class="s0">from </span><span class="s1">datetime </span><span class="s0">import </span><span class="s1">datetime</span>
+
+
+mydb = mysql.connector.connect(
+    host=<span class="s2">&quot;localhost&quot;</span><span class="s1">, user=</span><span class="s2">&quot;root&quot;</span><span class="s1">,</span>
+    passwd=<span class="s2">&quot;castro03&quot;</span><span class="s1">, database=</span><span class="s2">&quot;restDB&quot;</span><span class="s1">)</span>
+<span class="s0">def </span><span class="s1">adminSum():</span>
+
+    adminSumBean = mydb.cursor()
+    query = <span class="s2">&quot;SELECT ROUND(SUM(timedelta*1.5),2)&quot; </span><span class="s1">\</span>
+            <span class="s2">&quot; From Admin WHERE DAY(CarEntryDate) = DAY(NOW())&quot;</span>
+    <span class="s1">adminSumBean.execute(query)</span>
+    myresult = adminSumBean.fetchall()
+    <span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">myresult:</span>
+        print(<span class="s2">&quot;Total Daily Takings:&quot;</span><span class="s1">,x[</span><span class="s3">0</span><span class="s1">])</span>
+    mydb.commit()
+<span class="s0">def </span><span class="s1">adminCount():</span>
+    mycursor = mydb.cursor()
+    sql = <span class="s2">&quot;SELECT COUNT(timedelta) FROM Admin&quot;</span>
+    <span class="s1">mycursor.execute(sql)</span>
+    myresult = mycursor.fetchall()
+    print(<span class="s2">&quot;Number of cars that have used the car park: &quot;</span><span class="s1">,myresult[</span><span class="s3">0</span><span class="s1">][</span><span class="s3">0</span><span class="s1">])</span>
+<span class="s0">def </span><span class="s1">adminAverageCharge():</span>
+    adminBean = mydb.cursor()
+    query = <span class="s2">&quot;SELECT ROUND(AVG(timedelta*1.5),2) FROM Admin&quot;</span>
+    <span class="s1">adminBean.execute(query)</span>
+    myresult = adminBean.fetchall()
+    <span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">myresult:</span>
+        print(<span class="s2">&quot;Average Charge Per Car:&quot;</span><span class="s1">,x[</span><span class="s3">0</span><span class="s1">])</span>
+    mydb.commit()
+<span class="s0">def </span><span class="s1">adminAverageStay():</span>
+    adminSession = mydb.cursor()
+    query = <span class="s2">&quot;SELECT ROUND(AVG(timedelta),2) FROM Admin&quot;</span>
+    <span class="s1">adminSession.execute(query)</span>
+    myresult = adminSession.fetchall()
+    <span class="s0">for </span><span class="s1">x </span><span class="s0">in </span><span class="s1">myresult:</span>
+        print(<span class="s2">&quot;Average Length of stay per car:&quot;</span><span class="s1">,x[</span><span class="s3">0</span><span class="s1">],</span><span class="s2">&quot;hours&quot;</span><span class="s1">)</span>
+    mydb.commit()
+<span class="s0">def </span><span class="s1">admin():</span>
+    adminSum()
+    adminCount()
+    adminAverageCharge()
+    adminAverageStay()
+
+<span class="s0">def </span><span class="s1">updateAdmin(timedelta):</span>
+    adminSession = mydb.cursor()
+    query = <span class="s2">&quot;INSERT INTO Admin (timedelta) VALUES (%d)&quot;</span>
+
+    <span class="s1">sql = query % timedelta</span>
+    adminSession.execute(sql)
+    mydb.commit()
+<span class="s0">def </span><span class="s1">updateup():</span>
+    exitSession = mydb.cursor()
+    current_spaces = selectspaces()
+    savedtuple = (current_spaces+<span class="s3">1</span><span class="s1">,current_spaces)</span>
+    sql = <span class="s2">&quot;UPDATE Free_Spaces SET spaces = %s WHERE spaces = %s&quot;</span>
+
+    <span class="s1">exitSession.execute(sql,savedtuple)</span>
+    mydb.commit()
+    print(<span class="s2">&quot;There are now&quot;</span><span class="s1">,current_spaces+</span><span class="s3">1</span><span class="s1">,</span><span class="s2">&quot;free spaces&quot;</span><span class="s1">)</span>
+<span class="s0">def </span><span class="s1">carleave():</span>
+    <span class="s0">try</span><span class="s1">:</span>
+        ticketnum = input(<span class="s2">&quot;Enter your ticket number:</span><span class="s4">\n</span><span class="s2">&quot;</span><span class="s1">)</span>
+        time = datetime.now()
+        hour=time.strftime(<span class="s2">&quot;%H&quot;</span><span class="s1">)</span>
+        sqlcursor = mydb.cursor()
+        sql = <span class="s2">&quot;SELECT Entry_Time FROM CarEntry WHERE TicketNumber = %d&quot;</span>
+        <span class="s1">query = sql % int(ticketnum)</span>
+        sqlcursor.execute(query)
+        result = sqlcursor.fetchall()
+        entry_time = result[<span class="s3">0</span><span class="s1">][</span><span class="s3">0</span><span class="s1">]</span>
+        sql1 = <span class="s2">&quot;DELETE FROM CarEntry WHERE TicketNumber = %d&quot;</span>
+        <span class="s1">query2 = sql1 % int(ticketnum)</span>
+        sqlcursor.execute(query2)
+        mydb.commit()
+        print(<span class="s2">&quot;Record has been deleted&quot;</span><span class="s1">)</span>
+        print(<span class="s2">&quot;Arrived at&quot;</span><span class="s1">,entry_time )</span>
+        print(<span class="s2">&quot;Leaving at:&quot;</span><span class="s1">, hour)</span>
+        print(<span class="s2">&quot;</span><span class="s4">\n\t</span><span class="s2">Parked for:&quot;</span><span class="s1">,int(int(hour)-int(entry_time)))</span>
+        timedeltat = int(int(hour)-int(entry_time))
+        updateAdmin(timedeltat)
+        <span class="s0">if </span><span class="s1">int(hour)-int(entry_time) == </span><span class="s3">0</span><span class="s1">:</span>
+            print(<span class="s2">&quot;You do not have to pay!&quot;</span><span class="s1">)</span>
+        <span class="s0">else</span><span class="s1">:</span>
+            print(<span class="s2">&quot;You have to pay: $&quot;</span><span class="s1">,(</span><span class="s3">1.50</span><span class="s1">*timedeltat))</span>
+    <span class="s0">except </span><span class="s1">IndexError:</span>
+        print(<span class="s2">&quot;Your Ticket Number is not yet registered.&quot;</span><span class="s1">)</span>
+        sys.exit()
+
+<span class="s0">def </span><span class="s1">updatespaces():</span>
+    mycursor = mydb.cursor()
+    sql = <span class="s2">&quot;SELECT * FROM Free_Spaces&quot;</span>
+    <span class="s1">mycursor.execute(sql)</span>
+    myresult = mycursor.fetchall()
+    freespaces = int(myresult[<span class="s3">0</span><span class="s1">][</span><span class="s3">0</span><span class="s1">])</span>
+    update = <span class="s2">&quot;UPDATE Free_Spaces SET spaces = %s WHERE spaces = %s&quot;</span>
+    <span class="s1">indexes = (freespaces - </span><span class="s3">1</span><span class="s1">, freespaces)</span>
+    mycursor.execute(update, indexes)
+
+    print(<span class="s2">&quot;Free Spaces Updated</span><span class="s4">\n\t</span><span class="s2">There are now&quot;</span><span class="s1">, indexes[</span><span class="s3">0</span><span class="s1">], </span><span class="s2">&quot;spaces&quot;</span><span class="s1">)</span>
+    mydb.commit()
+
+<span class="s0">def </span><span class="s1">newcar():</span>
+    current_time = datetime.now()
+    time_hour = current_time.strftime(<span class="s2">&quot;%H&quot;</span><span class="s1">)</span>
+    freespaces = selectspaces()
+    mycursor = mydb.cursor()
+    sql = <span class="s2">&quot;INSERT INTO CarEntry (Entry_Time, TicketNumber) VALUES (%s, %s)&quot;</span>
+    <span class="s1">val = (time_hour, freespaces)</span>
+    mycursor.execute(sql, val)
+    mydb.commit()
+    print(<span class="s2">&quot;</span><span class="s4">\t\t</span><span class="s2">Your ticket number is&quot;</span><span class="s1">,freespaces)</span>
+<span class="s0">def </span><span class="s1">selectspaces():</span>
+    mycursor = mydb.cursor()
+    sql = <span class="s2">&quot;SELECT * FROM Free_Spaces&quot;</span>
+    <span class="s1">mycursor.execute(sql)</span>
+    myresult = mycursor.fetchall()
+    freespaces = int(myresult[<span class="s3">0</span><span class="s1">][</span><span class="s3">0</span><span class="s1">])</span>
+    mydb.commit()
+    <span class="s0">return </span><span class="s1">freespaces</span>
+
+
+user = input(<span class="s2">&quot;Admin or Client?</span><span class="s4">\n</span><span class="s2">&quot;</span><span class="s1">)</span>
+<span class="s0">if </span><span class="s1">user == </span><span class="s2">&quot;Client&quot; </span><span class="s0">or </span><span class="s1">user == </span><span class="s2">&quot;c&quot;</span><span class="s1">:</span>
+    welcome = input(<span class="s2">&quot;Entry or Exit</span><span class="s4">\n</span><span class="s2">&quot;</span><span class="s1">)</span>
+    <span class="s0">if </span><span class="s1">welcome == </span><span class="s2">&quot;Entry&quot; </span><span class="s0">or </span><span class="s1">welcome == </span><span class="s2">&quot;e&quot;</span><span class="s1">:</span>
+        print(<span class="s2">&quot;There are&quot;</span><span class="s1">, selectspaces(), </span><span class="s2">&quot;free spaces&quot;</span><span class="s1">)</span>
+        accept = input(<span class="s2">&quot;Go in?</span><span class="s4">\n</span><span class="s2">[Yes/No]</span><span class="s4">\n</span><span class="s2">&quot;</span><span class="s1">)</span>
+
+        <span class="s0">if </span><span class="s1">accept == </span><span class="s2">&quot;Yes&quot; </span><span class="s0">or </span><span class="s1">accept == </span><span class="s2">&quot;y&quot;</span><span class="s1">:</span>
+            <span class="s0">if </span><span class="s1">selectspaces() &gt; </span><span class="s3">0</span><span class="s1">:</span>
+                newcar()
+                updatespaces()
+                print(<span class="s2">&quot;You may go in now...&quot;</span><span class="s1">)</span>
+            <span class="s0">elif </span><span class="s1">selectspaces() &lt;= </span><span class="s3">0</span><span class="s1">:</span>
+                print(<span class="s2">&quot;We are very sorry there are no more free spaces left&quot;</span><span class="s1">)</span>
+
+        <span class="s0">if </span><span class="s1">accept == </span><span class="s2">&quot;No&quot; </span><span class="s0">or </span><span class="s2">&quot;n&quot;</span><span class="s1">:</span>
+            sys.exit()
+        <span class="s0">else</span><span class="s1">:</span>
+            print(<span class="s2">&quot;Enter a correct value&quot;</span><span class="s1">)</span>
+    <span class="s0">elif </span><span class="s1">welcome == </span><span class="s2">&quot;Exit&quot; </span><span class="s0">or </span><span class="s1">welcome == </span><span class="s2">&quot;x&quot;</span><span class="s1">:</span>
+        carleave()
+        updateup()
+    <span class="s0">else</span><span class="s1">:</span>
+        print(<span class="s2">&quot;Enter a correct value&quot;</span><span class="s1">)</span>
+<span class="s0">elif </span><span class="s1">user == </span><span class="s2">&quot;Admin&quot; </span><span class="s0">or </span><span class="s1">user == </span><span class="s2">&quot;a&quot;</span><span class="s1">:</span>
+    admin()</pre>
+</body>
+</html>
