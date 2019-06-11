@@ -1,8 +1,6 @@
 from fabric.api import local, settings, abort
 from fabric.contrib.console import confirm
 
-# prepare for deployment
-
 
 def test():
     with settings(warn_only=True):
@@ -14,7 +12,7 @@ def test():
 
 
 def commit():
-    message = raw_input("Enter a git commit message: ")
+    message = input("Enter a git commit message: ")
     local("git add . && git commit -am '{}'".format(message))
 
 
@@ -26,8 +24,6 @@ def prepare():
     test()
     commit()
     push()
-
-# deploy to heroku
 
 
 def pull():
@@ -50,8 +46,6 @@ def deploy():
     commit()
     heroku()
     heroku_test()
-
-# rollback
 
 
 def rollback():

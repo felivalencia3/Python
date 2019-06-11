@@ -1,16 +1,28 @@
-from flask import Flask, render_template, request
-from flask_sqlalchemy import SQLAlchemy
 import logging
+from functools import wraps
 from logging import Formatter, FileHandler
+from flask import Flask, render_template, request, flash, session, redirect, url_for
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
 from forms import *
-import os
 
 app = Flask(__name__)
 app.config.from_object('config')
 db = SQLAlchemy(app)
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.get(user_id)
+
+
 @app.teardown_request
 def shutdown_session(exception=None):
     db_session.remove()
+
+
 def login_required(test):
     @wraps(test)
     def wrap(*args, **kwargs):
@@ -19,10 +31,24 @@ def login_required(test):
         else:
             flash('You need to login first.')
             return redirect(url_for('login'))
+
     return wrap
-#----------------------------------------------------------------------------#
-# Controllers.
-#----------------------------------------------------------------------------#
+
+
+db_session = db.session
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(120), unique=True, nullable=False)
+
+    def __repr__(self):
+        return '<User %r>' % self.username
+
+
+db.create_all()
 
 
 @app.route('/')
@@ -52,9 +78,10 @@ def forgot():
     form = ForgotForm(request.form)
     return render_template('forms/forgot.html', form=form)
 
+
 @app.errorhandler(500)
 def internal_error(error):
-    #db_session.rollback()
+    db_session.rollback()
     return render_template('errors/500.html'), 500
 
 
@@ -62,11 +89,15 @@ def internal_error(error):
 def not_found_error(error):
     return render_template('errors/404.html'), 404
 
+
 if not app.debug:
     file_handler = FileHandler('error.log')
     file_handler.setFormatter(
         Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
     )
-
+    app.logger.setLevel(logging.INFO)
+    file_handler.setLevel(logging.INFO)
+    app.logger.addHandler(file_handler)
+    app.logger.info('errors')
 if __name__ == '__main__':
     app.run()
