@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 from logging import Formatter, FileHandler
 from flask import Flask, render_template, request, flash, session, redirect, url_for
-from flask_login import LoginManager
+from flask_login import LoginManager, UserMixin, login_required, current_user
 from flask_sqlalchemy import SQLAlchemy
 from forms import *
 
@@ -11,6 +11,9 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
+from models import User
+from auth import auth
+from routes import app as views
 
 
 @login_manager.user_loader
@@ -23,60 +26,9 @@ def shutdown_session(exception=None):
     db_session.remove()
 
 
-def login_required(test):
-    @wraps(test)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return test(*args, **kwargs)
-        else:
-            flash('You need to login first.')
-            return redirect(url_for('login'))
-
-    return wrap
-
-
 db_session = db.session
-
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), unique=True, nullable=False)
-
-    def __repr__(self):
-        return '<User %r>' % self.username
-
-
-db.create_all()
-
-
-@app.route('/')
-def home():
-    return render_template('pages/placeholder.home.html')
-
-
-@app.route('/about')
-def about():
-    return render_template('pages/placeholder.about.html')
-
-
-@app.route('/login')
-def login():
-    form = LoginForm(request.form)
-    return render_template('forms/login.html', form=form)
-
-
-@app.route('/register')
-def register():
-    form = RegisterForm(request.form)
-    return render_template('forms/register.html', form=form)
-
-
-@app.route('/forgot')
-def forgot():
-    form = ForgotForm(request.form)
-    return render_template('forms/forgot.html', form=form)
+app.register_blueprint(views)
+app.register_blueprint(auth)
 
 
 @app.errorhandler(500)
