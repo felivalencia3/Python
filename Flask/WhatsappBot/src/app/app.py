@@ -1,3 +1,4 @@
+import requests
 from flask import Flask, render_template, request
 from twilio.rest import Client
 
@@ -10,9 +11,10 @@ client = Client(SID, KEY)
 
 @app.route('/incoming', methods=['POST'])
 def incoming():
-    text = request.form['Body']
     to = request.form['To']
     origin = request.form['Form']
+    response = requests.get('https://quota.glitch.me/random')
+    text = response.json()
     message = client.messages.create(
         from_=origin,
         body=text,
