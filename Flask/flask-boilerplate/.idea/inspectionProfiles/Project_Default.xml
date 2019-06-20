@@ -4,7 +4,7 @@
     <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
       <option name="ignoredPackages">
         <value>
-          <list size="40">
+          <list size="57">
             <item index="0" class="java.lang.String" itemvalue="absl-py" />
             <item index="1" class="java.lang.String" itemvalue="pbr" />
             <item index="2" class="java.lang.String" itemvalue="python-dateutil" />
@@ -45,6 +45,23 @@
             <item index="37" class="java.lang.String" itemvalue="pytz" />
             <item index="38" class="java.lang.String" itemvalue="enum34" />
             <item index="39" class="java.lang.String" itemvalue="idna" />
+            <item index="40" class="java.lang.String" itemvalue="coverage" />
+            <item index="41" class="java.lang.String" itemvalue="ipaddress" />
+            <item index="42" class="java.lang.String" itemvalue="asn1crypto" />
+            <item index="43" class="java.lang.String" itemvalue="Flask-WTF" />
+            <item index="44" class="java.lang.String" itemvalue="SQLAlchemy" />
+            <item index="45" class="java.lang.String" itemvalue="cffi" />
+            <item index="46" class="java.lang.String" itemvalue="cryptography" />
+            <item index="47" class="java.lang.String" itemvalue="Click" />
+            <item index="48" class="java.lang.String" itemvalue="invoke" />
+            <item index="49" class="java.lang.String" itemvalue="pycparser" />
+            <item index="50" class="java.lang.String" itemvalue="Flask-SQLAlchemy" />
+            <item index="51" class="java.lang.String" itemvalue="bcrypt" />
+            <item index="52" class="java.lang.String" itemvalue="WTForms" />
+            <item index="53" class="java.lang.String" itemvalue="paramiko" />
+            <item index="54" class="java.lang.String" itemvalue="PyNaCl" />
+            <item index="55" class="java.lang.String" itemvalue="fabric" />
+            <item index="56" class="java.lang.String" itemvalue="itsdangerous" />
           </list>
         </value>
       </option>

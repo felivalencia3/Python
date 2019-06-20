@@ -1,5 +1,9 @@
 from flask import Blueprint, render_template
+from flask_login import login_required, current_user
+
 app = Blueprint('routes', __name__)
+
+
 @app.route('/')
 def home():
     return render_template('pages/placeholder.home.html')
@@ -8,3 +12,9 @@ def home():
 @app.route('/about')
 def about():
     return render_template('pages/placeholder.about.html')
+
+
+@app.route('/profile')
+@login_required
+def profile():
+    return {"name": current_user.name}
