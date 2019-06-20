@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
 from forms import LoginForm, RegisterForm, ForgotForm
 from app import db
+from flask_login import login_user, logout_user, login_required
 
 auth = Blueprint('auth', __name__)
 
@@ -12,10 +13,18 @@ def login():
     if request.method == 'POST':
         email = request.form['email']
         password = request.form['password']
-        return str({
-            email,
-            password,
-        })
+        remember = True if request.form["remember"] else False
+        error = None
+        user = User.query.filter_by(email=email).first()
+        if user is None:
+            error = "User does not Exist"
+        else:
+            if check_password_hash(user.password, password=password):
+                login_user(user)
+                return redirect(url_for("routes.profile"))
+            else:
+                error = "Password does not match"
+
     form = LoginForm(request.form)
     return render_template('forms/login.html', form=form)
 
