@@ -17,4 +17,4 @@ def about():
 @app.route('/profile')
 @login_required
 def profile():
-    return {"name": current_user.name}
+    return render_template("pages/profile.html", name=current_user.name)

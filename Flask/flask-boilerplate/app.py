@@ -18,7 +18,7 @@ from routes import app as views
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.get(user_id)
+    return User.query.get(int(user_id))
 
 
 @app.teardown_request

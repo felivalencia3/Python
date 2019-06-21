@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from models import User
 from forms import LoginForm, RegisterForm, ForgotForm
@@ -6,8 +6,6 @@ from app import db
 from flask_login import login_user, logout_user, login_required
 
 auth = Blueprint('auth', __name__)
-
-
 @auth.route('/login', methods=('GET', 'POST'))
 def login():
     if request.method == 'POST':
@@ -20,10 +18,13 @@ def login():
             error = "User does not Exist"
         else:
             if check_password_hash(user.password, password=password):
-                login_user(user)
+                login_user(user, remember=remember)
                 return redirect(url_for("routes.profile"))
             else:
                 error = "Password does not match"
+        flash(error)
+        flash("Logged in succesfully.")
+        return redirect(request.url)
 
     form = LoginForm(request.form)
     return render_template('forms/login.html', form=form)
@@ -64,5 +65,7 @@ def forgot():
 
 
 @auth.route('/logout')
+@login_required
 def logout():
+    logout_user()
     return 'Logout'
